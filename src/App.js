@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function Cell({value, onClick}) {
   //const [board, setBoard] = useState(initialBoard);
@@ -7,6 +7,7 @@ function Cell({value, onClick}) {
 }
 
 function App() {
+  const gameRef = useRef(null);
   const [board, setBoard] = useState(Array(9).fill(''));
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [winner, setWinner] = useState(null);
@@ -18,7 +19,7 @@ function App() {
       setWinner(winner_player);
       setGameOver(true);
     }
-  }, [board]);
+  }, [board, checkWin]);
 
   useEffect(() => {
     if (gameOver) {
@@ -28,7 +29,7 @@ function App() {
 
 
   function handleClick(index, player) {
-    if (board[index] !== '') {
+    if (board[index] !== '' || gameOver) {
       return;
     }
     const newBoard = board.slice();
@@ -59,9 +60,39 @@ function App() {
     return null;
   }
 
+  function Footer() {
+    if (gameOver) {
+      return (
+        <div className="footer">
+          <h1>Game Over</h1>
+          <h2>Winner: {winner}</h2>
+        </div>
+      );
+    }
+    else {
+      return (
+        <div className="footer">
+          <p>Current Player: {currentPlayer}</p>
+        </div>
+      );
+    }
+  }
+
   return (
-    <div className="App">
-      <h1>Tic Tac Toe</h1>
+    <>
+          <header className="App-header">
+            <div className="header-content">
+            <h1>Tic Tac Toe</h1>
+            </div>
+
+            <button className="header-button" onClick={() => {
+              window.scrollTo({
+                top: document.documentElement.scrollHeight,
+                behavior: 'smooth'
+              });
+            }}>Start Game</button>
+          </header>
+    <div className="App" ref={gameRef}>
       <div className="game-container">
         <div className="row">
           <Cell value={board[0]} onClick={() => handleClick(0, currentPlayer)} />
@@ -79,18 +110,17 @@ function App() {
           <Cell value={board[8]} onClick={() => handleClick(8, currentPlayer)} />
         </div>
       </div>
-      <button onClick={() => {
+
+      <Footer/>
+
+      <button className="reset-button" onClick={() => {
         setBoard(Array(9).fill(''));
         setCurrentPlayer('X');
         setWinner(null);
         setGameOver(false);
-      }}>Reset</button>
-      <div className="game-info">
-        <p>Current Player: {currentPlayer}</p>
-        <p>Winner: {winner}</p>
-        <p>Game Over: {gameOver}</p>
-      </div>
+      }}>Reset Game</button>
     </div>
+    </>
   );
 }
 
